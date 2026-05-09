@@ -1,0 +1,13 @@
+# Compiled binaries
+/server
+/sbs-feeder
+*.test
+*.out
+
+# Go build cache for IDEs
+/vendor/
+
+# Editor scratch
+.vscode/
+.idea/
+*.swp

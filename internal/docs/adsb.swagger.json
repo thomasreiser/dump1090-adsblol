@@ -1,0 +1,530 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "adsb/v2/adsb.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "AdsbService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v2/callsign/{callsign_list}": {
+      "get": {
+        "summary": "/v2/callsign/{callsign_list} — comma-separated callsigns.",
+        "operationId": "AdsbService_GetByCallsign",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v2V2Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "callsign_list",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "AdsbService"
+        ]
+      }
+    },
+    "/v2/closest/{lat}/{lon}/{dist}": {
+      "get": {
+        "summary": "/v2/closest/{lat}/{lon}/{dist} — single closest aircraft within `dist` nautical miles.",
+        "operationId": "AdsbService_GetClosest",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v2V2Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "lat",
+            "in": "path",
+            "required": true,
+            "type": "number",
+            "format": "double"
+          },
+          {
+            "name": "lon",
+            "in": "path",
+            "required": true,
+            "type": "number",
+            "format": "double"
+          },
+          {
+            "name": "dist",
+            "in": "path",
+            "required": true,
+            "type": "number",
+            "format": "double"
+          }
+        ],
+        "tags": [
+          "AdsbService"
+        ]
+      }
+    },
+    "/v2/hex/{hex_list}": {
+      "get": {
+        "summary": "/v2/hex/{hex_list} — one or more comma-separated 24-bit ICAO hexes.",
+        "operationId": "AdsbService_GetByHex",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v2V2Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "hex_list",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "AdsbService"
+        ]
+      }
+    },
+    "/v2/icao/{type_list}": {
+      "get": {
+        "summary": "/v2/icao/{type_list} — comma-separated ICAO aircraft type designators (e.g. A320).",
+        "operationId": "AdsbService_GetByIcaoType",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v2V2Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "type_list",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "AdsbService"
+        ]
+      }
+    },
+    "/v2/ladd": {
+      "get": {
+        "summary": "/v2/ladd — Limiting Aircraft Data Displayed list.",
+        "operationId": "AdsbService_GetLadd",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v2V2Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "AdsbService"
+        ]
+      }
+    },
+    "/v2/lat/{lat}/lon/{lon}/dist/{dist}": {
+      "get": {
+        "summary": "/v2/lat/{lat}/lon/{lon}/dist/{dist} — aircraft within `dist` nautical miles of (lat, lon).",
+        "operationId": "AdsbService_GetWithinRadius",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v2V2Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "lat",
+            "in": "path",
+            "required": true,
+            "type": "number",
+            "format": "double"
+          },
+          {
+            "name": "lon",
+            "in": "path",
+            "required": true,
+            "type": "number",
+            "format": "double"
+          },
+          {
+            "name": "dist",
+            "in": "path",
+            "required": true,
+            "type": "number",
+            "format": "double"
+          }
+        ],
+        "tags": [
+          "AdsbService"
+        ]
+      }
+    },
+    "/v2/mil": {
+      "get": {
+        "summary": "/v2/mil — all currently-tracked aircraft flagged military.",
+        "operationId": "AdsbService_GetMilitary",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v2V2Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "AdsbService"
+        ]
+      }
+    },
+    "/v2/pia": {
+      "get": {
+        "summary": "/v2/pia — Privacy ICAO Address aircraft (hex starting with ADF).",
+        "operationId": "AdsbService_GetPia",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v2V2Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "AdsbService"
+        ]
+      }
+    },
+    "/v2/reg/{reg_list}": {
+      "get": {
+        "summary": "/v2/reg/{reg_list} — comma-separated registrations.",
+        "operationId": "AdsbService_GetByRegistration",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v2V2Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "reg_list",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "AdsbService"
+        ]
+      }
+    },
+    "/v2/squawk/{squawk}": {
+      "get": {
+        "summary": "/v2/squawk/{squawk} — single 4-digit Mode A squawk code.",
+        "operationId": "AdsbService_GetBySquawk",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v2V2Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "squawk",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "AdsbService"
+        ]
+      }
+    },
+    "/v2/type/{type_list}": {
+      "get": {
+        "summary": "/v2/icao/{type_list} — comma-separated ICAO aircraft type designators (e.g. A320).",
+        "operationId": "AdsbService_GetByIcaoType2",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v2V2Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "type_list",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "AdsbService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v2Aircraft": {
+      "type": "object",
+      "properties": {
+        "hex": {
+          "type": "string",
+          "description": "24-bit ICAO hex, lowercase."
+        },
+        "type": {
+          "type": "string",
+          "description": "Origin type: \"adsb_icao\", \"adsb_icao_nt\", \"mlat\", \"tisb\", ..."
+        },
+        "flight": {
+          "type": "string",
+          "description": "Callsign / flight number, padded to 8 chars on the wire — kept as-received."
+        },
+        "r": {
+          "type": "string",
+          "description": "Registration (looked up from optional aircraft DB)."
+        },
+        "t": {
+          "type": "string",
+          "description": "ICAO type designator (looked up from optional aircraft DB)."
+        },
+        "alt_baro": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Barometric altitude in feet. When the aircraft is on the ground, this is\n0 and `ground` is true (the upstream adsb.lol serializes \"ground\" as a\nstring here; we keep it numeric for proto-friendliness)."
+        },
+        "ground": {
+          "type": "boolean"
+        },
+        "gs": {
+          "type": "number",
+          "format": "double",
+          "description": "Ground speed in knots."
+        },
+        "track": {
+          "type": "number",
+          "format": "double",
+          "description": "True track over ground in degrees."
+        },
+        "baro_rate": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Barometric vertical rate in ft/min."
+        },
+        "squawk": {
+          "type": "string",
+          "description": "Mode A squawk code as 4 octal digits."
+        },
+        "emergency": {
+          "type": "string",
+          "description": "Emergency state: \"none\", \"general\", \"lifeguard\", ..."
+        },
+        "category": {
+          "type": "string",
+          "description": "Aircraft category (A0..A7, B0..B7, ...)."
+        },
+        "lat": {
+          "type": "number",
+          "format": "double"
+        },
+        "lon": {
+          "type": "number",
+          "format": "double"
+        },
+        "seen_pos": {
+          "type": "number",
+          "format": "double",
+          "description": "Seconds since the last position update."
+        },
+        "seen": {
+          "type": "number",
+          "format": "double",
+          "description": "Seconds since any message from this aircraft."
+        },
+        "messages": {
+          "type": "number",
+          "format": "double",
+          "description": "Total SBS messages received from this hex during its lifetime in the tracker.\nEncoded as double for JSON compatibility with adsb.lol (it returns a number,\nand int64 in canonical protojson would be a string)."
+        },
+        "alert": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "spi": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "dst": {
+          "type": "number",
+          "format": "double",
+          "description": "Distance from a query point, in nautical miles. Populated only for the\n/v2/lat/lon/radius and /v2/closest endpoints."
+        }
+      },
+      "description": "Aircraft is a snapshot of a tracked target. Fields that we cannot derive from\nSBS BaseStation data are omitted (the JSON gateway uses emit_unpopulated=false\nfor optional scalars so absent fields simply don't appear)."
+    },
+    "v2V2Response": {
+      "type": "object",
+      "properties": {
+        "ac": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v2Aircraft"
+          }
+        },
+        "msg": {
+          "type": "string"
+        },
+        "now": {
+          "type": "number",
+          "format": "double",
+          "description": "Server clock in unix-epoch milliseconds."
+        },
+        "total": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Number of aircraft in `ac`."
+        },
+        "ctime": {
+          "type": "number",
+          "format": "double",
+          "description": "Server clock in unix-epoch milliseconds (legacy duplicate of `now`)."
+        },
+        "ptime": {
+          "type": "number",
+          "format": "double",
+          "description": "Processing time in milliseconds."
+        }
+      },
+      "description": "V2Response mirrors the adsb.lol /v2 response envelope. Timestamps are\nemitted as doubles (not int64) so they serialize as JSON numbers rather\nthan the canonical-protojson string form, matching adsb.lol's wire format."
+    }
+  }
+}
