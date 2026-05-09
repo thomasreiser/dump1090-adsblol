@@ -12,7 +12,7 @@ func TestDistanceNM_Identity(t *testing.T) {
 }
 
 func TestDistanceNM_KnownPair(t *testing.T) {
-	// JFK (40.6413, -73.7781) to LAX (33.9425, -118.4081) ~= 2144 NM.
+	// JFK to LAX is ~2144 NM
 	d := DistanceNM(40.6413, -73.7781, 33.9425, -118.4081)
 	if math.Abs(d-2144) > 20 {
 		t.Errorf("JFK-LAX = %v NM, want ~2144", d)

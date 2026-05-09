@@ -1,7 +1,5 @@
-// Package sbs decodes the BaseStation (SBS-1) text format that dump1090
-// exposes on TCP port 30003. Each line is a comma-separated record; see
-// http://woodair.net/sbs/article/barebones42_socket_data.htm for the canonical
-// field layout. We only care about MSG records.
+// Package sbs decodes the SBS-1 BaseStation text format dump1090 serves on
+// TCP 30003. Spec: http://woodair.net/sbs/article/barebones42_socket_data.htm
 package sbs
 
 import (
@@ -11,22 +9,22 @@ import (
 	"time"
 )
 
-// MessageType is the SBS "transmission type" — field 2 of a MSG record.
+// MessageType is field 2 of a MSG record (the SBS "transmission type")
 type MessageType int
 
 const (
 	MsgESIdentification   MessageType = 1 // callsign
 	MsgESSurfacePosition  MessageType = 2 // surface lat/lon/gs/track
-	MsgESAirbornePosition MessageType = 3 // airborne lat/lon, altitude
-	MsgESAirborneVelocity MessageType = 4 // gs, track, vertical rate
+	MsgESAirbornePosition MessageType = 3 // airborne lat/lon + altitude
+	MsgESAirborneVelocity MessageType = 4 // gs/track/vertical rate
 	MsgSurveillanceAlt    MessageType = 5 // altitude only
 	MsgSurveillanceID     MessageType = 6 // altitude + squawk
 	MsgAirToAir           MessageType = 7 // altitude
 	MsgAllCallReply       MessageType = 8 // ground bit only
 )
 
-// Message is a parsed SBS MSG line. Pointer fields distinguish "absent from
-// this message" from "zero value".
+// Message is one parsed SBS MSG line. Pointer fields distinguish "absent" from
+// "zero" — SBS uses empty CSV cells for "this record doesn't carry the field"
 type Message struct {
 	Type      MessageType
 	HexIdent  string
@@ -46,10 +44,9 @@ type Message struct {
 	OnGround     *bool
 }
 
-// ErrNotMSG is returned for non-MSG lines (STA/SEL/AIR/ID/CLK) which we ignore.
+// ErrNotMSG is returned for STA/SEL/AIR/ID/CLK lines — not an error, just skip
 var ErrNotMSG = errors.New("sbs: not a MSG record")
 
-// Parse parses a single SBS BaseStation line.
 func Parse(line string) (*Message, error) {
 	line = strings.TrimRight(line, "\r\n ")
 	if line == "" {
@@ -81,9 +78,6 @@ func Parse(line string) (*Message, error) {
 	}
 
 	if s := strings.TrimSpace(fields[10]); s != "" {
-		// Preserve trailing whitespace on the callsign as adsb.lol does (the
-		// Mode-S frame pads to 8 chars). We *trim* here for whitespace-only
-		// detection but assign the original.
 		c := strings.TrimRight(fields[10], " ")
 		m.Callsign = &c
 	}
@@ -160,9 +154,8 @@ func parseBool(s string) (bool, bool) {
 	return false, false
 }
 
-// dump1090 emits "YYYY/MM/DD" and "HH:MM:SS.mmm". Parse leniently; if either
-// half is unparseable we fall back to time.Time{} so callers can substitute
-// time.Now().
+// dump1090 emits "YYYY/MM/DD" and "HH:MM:SS.mmm" separately. If either half is
+// unparseable we hand back a zero time and let the caller decide what to do
 func parseDateTime(date, t string) time.Time {
 	date = strings.TrimSpace(date)
 	t = strings.TrimSpace(t)

@@ -10,18 +10,18 @@ import (
 	"time"
 )
 
-// Client reads SBS lines from a dump1090 BaseStation TCP endpoint and pushes
-// parsed Messages to a sink. It reconnects with exponential backoff.
+// Client reads SBS lines from a dump1090 BaseStation TCP feed and pushes
+// parsed Messages to OnMessage. Reconnects with exponential backoff
 type Client struct {
-	Addr       string        // host:port
-	Dial       func(ctx context.Context) (net.Conn, error) // overridable for tests
+	Addr       string                                      // host:port
+	Dial       func(ctx context.Context) (net.Conn, error) // overridable in tests
 	OnMessage  func(Message)
 	Logger     *slog.Logger
 	MinBackoff time.Duration
 	MaxBackoff time.Duration
 }
 
-// Run blocks until ctx is cancelled.
+// Run blocks until ctx is cancelled
 func (c *Client) Run(ctx context.Context) error {
 	if c.OnMessage == nil {
 		return errors.New("sbs: client has no OnMessage callback")
@@ -80,7 +80,6 @@ func (c *Client) read(ctx context.Context, conn net.Conn) {
 
 	sc := bufio.NewScanner(conn)
 	sc.Buffer(make([]byte, 0, 4096), 1<<20)
-	// dump1090 uses \r\n line endings; bufio's default ScanLines handles both.
 	for sc.Scan() {
 		m, err := Parse(sc.Text())
 		if err != nil {

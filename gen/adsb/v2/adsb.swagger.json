@@ -18,7 +18,7 @@
   "paths": {
     "/v2/callsign/{callsign_list}": {
       "get": {
-        "summary": "/v2/callsign/{callsign_list} — comma-separated callsigns.",
+        "summary": "GET /v2/callsign/{callsign_list} — comma-separated callsigns",
         "operationId": "AdsbService_GetByCallsign",
         "responses": {
           "200": {
@@ -49,7 +49,7 @@
     },
     "/v2/closest/{lat}/{lon}/{dist}": {
       "get": {
-        "summary": "/v2/closest/{lat}/{lon}/{dist} — single closest aircraft within `dist` nautical miles.",
+        "summary": "GET /v2/closest/{lat}/{lon}/{dist} — single closest aircraft within `dist` NM",
         "operationId": "AdsbService_GetClosest",
         "responses": {
           "200": {
@@ -95,7 +95,7 @@
     },
     "/v2/hex/{hex_list}": {
       "get": {
-        "summary": "/v2/hex/{hex_list} — one or more comma-separated 24-bit ICAO hexes.",
+        "summary": "GET /v2/hex/{hex_list} — comma-separated 24-bit ICAO hex codes",
         "operationId": "AdsbService_GetByHex",
         "responses": {
           "200": {
@@ -126,7 +126,7 @@
     },
     "/v2/icao/{type_list}": {
       "get": {
-        "summary": "/v2/icao/{type_list} — comma-separated ICAO aircraft type designators (e.g. A320).",
+        "summary": "GET /v2/icao/{type_list} (alias /v2/type/{type_list}) — ICAO type designators (e.g. A320)",
         "operationId": "AdsbService_GetByIcaoType",
         "responses": {
           "200": {
@@ -157,7 +157,7 @@
     },
     "/v2/ladd": {
       "get": {
-        "summary": "/v2/ladd — Limiting Aircraft Data Displayed list.",
+        "summary": "GET /v2/ladd — Limiting Aircraft Data Displayed list",
         "operationId": "AdsbService_GetLadd",
         "responses": {
           "200": {
@@ -180,7 +180,7 @@
     },
     "/v2/lat/{lat}/lon/{lon}/dist/{dist}": {
       "get": {
-        "summary": "/v2/lat/{lat}/lon/{lon}/dist/{dist} — aircraft within `dist` nautical miles of (lat, lon).",
+        "summary": "GET /v2/lat/{lat}/lon/{lon}/dist/{dist} — aircraft within `dist` NM of (lat, lon)",
         "operationId": "AdsbService_GetWithinRadius",
         "responses": {
           "200": {
@@ -226,7 +226,7 @@
     },
     "/v2/mil": {
       "get": {
-        "summary": "/v2/mil — all currently-tracked aircraft flagged military.",
+        "summary": "GET /v2/mil — aircraft flagged military",
         "operationId": "AdsbService_GetMilitary",
         "responses": {
           "200": {
@@ -249,7 +249,7 @@
     },
     "/v2/pia": {
       "get": {
-        "summary": "/v2/pia — Privacy ICAO Address aircraft (hex starting with ADF).",
+        "summary": "GET /v2/pia — Privacy ICAO Address aircraft (hex starts with ADF)",
         "operationId": "AdsbService_GetPia",
         "responses": {
           "200": {
@@ -272,7 +272,7 @@
     },
     "/v2/reg/{reg_list}": {
       "get": {
-        "summary": "/v2/reg/{reg_list} — comma-separated registrations.",
+        "summary": "GET /v2/reg/{reg_list} — comma-separated registrations",
         "operationId": "AdsbService_GetByRegistration",
         "responses": {
           "200": {
@@ -303,7 +303,7 @@
     },
     "/v2/squawk/{squawk}": {
       "get": {
-        "summary": "/v2/squawk/{squawk} — single 4-digit Mode A squawk code.",
+        "summary": "GET /v2/squawk/{squawk} — one 4-digit Mode A code",
         "operationId": "AdsbService_GetBySquawk",
         "responses": {
           "200": {
@@ -334,7 +334,7 @@
     },
     "/v2/type/{type_list}": {
       "get": {
-        "summary": "/v2/icao/{type_list} — comma-separated ICAO aircraft type designators (e.g. A320).",
+        "summary": "GET /v2/icao/{type_list} (alias /v2/type/{type_list}) — ICAO type designators (e.g. A320)",
         "operationId": "AdsbService_GetByIcaoType2",
         "responses": {
           "200": {
@@ -398,28 +398,28 @@
       "properties": {
         "hex": {
           "type": "string",
-          "description": "24-bit ICAO hex, lowercase."
+          "title": "24-bit ICAO hex, lowercase"
         },
         "type": {
           "type": "string",
-          "description": "Origin type: \"adsb_icao\", \"adsb_icao_nt\", \"mlat\", \"tisb\", ..."
+          "description": "origin type: \"adsb_icao\", \"adsb_icao_nt\", \"mlat\", \"tisb\", ..."
         },
         "flight": {
           "type": "string",
-          "description": "Callsign / flight number, padded to 8 chars on the wire — kept as-received."
+          "title": "callsign / flight number, padded to 8 chars on the wire — kept as-received"
         },
         "r": {
           "type": "string",
-          "description": "Registration (looked up from optional aircraft DB)."
+          "title": "registration, from the optional aircraft DB"
         },
         "t": {
           "type": "string",
-          "description": "ICAO type designator (looked up from optional aircraft DB)."
+          "title": "ICAO type designator, from the optional aircraft DB"
         },
         "alt_baro": {
           "type": "integer",
           "format": "int32",
-          "description": "Barometric altitude in feet. When the aircraft is on the ground, this is\n0 and `ground` is true (the upstream adsb.lol serializes \"ground\" as a\nstring here; we keep it numeric for proto-friendliness)."
+          "title": "barometric altitude in feet. 0 when `ground` is true. adsb.lol serialises\n\"ground\" as a string here; we keep it numeric for proto-friendliness"
         },
         "ground": {
           "type": "boolean"
@@ -427,29 +427,29 @@
         "gs": {
           "type": "number",
           "format": "double",
-          "description": "Ground speed in knots."
+          "title": "ground speed in knots"
         },
         "track": {
           "type": "number",
           "format": "double",
-          "description": "True track over ground in degrees."
+          "title": "true track over ground in degrees"
         },
         "baro_rate": {
           "type": "integer",
           "format": "int32",
-          "description": "Barometric vertical rate in ft/min."
+          "title": "barometric vertical rate, ft/min"
         },
         "squawk": {
           "type": "string",
-          "description": "Mode A squawk code as 4 octal digits."
+          "title": "Mode A squawk, 4 octal digits"
         },
         "emergency": {
           "type": "string",
-          "description": "Emergency state: \"none\", \"general\", \"lifeguard\", ..."
+          "description": "emergency state: \"none\", \"general\", \"lifeguard\", ..."
         },
         "category": {
           "type": "string",
-          "description": "Aircraft category (A0..A7, B0..B7, ...)."
+          "title": "aircraft category (A0..A7, B0..B7, ...)"
         },
         "lat": {
           "type": "number",
@@ -462,17 +462,17 @@
         "seen_pos": {
           "type": "number",
           "format": "double",
-          "description": "Seconds since the last position update."
+          "title": "seconds since the last position update"
         },
         "seen": {
           "type": "number",
           "format": "double",
-          "description": "Seconds since any message from this aircraft."
+          "title": "seconds since any message from this aircraft"
         },
         "messages": {
           "type": "number",
           "format": "double",
-          "description": "Total SBS messages received from this hex during its lifetime in the tracker.\nEncoded as double for JSON compatibility with adsb.lol (it returns a number,\nand int64 in canonical protojson would be a string)."
+          "title": "total SBS messages received for this hex since the tracker first heard it.\nEncoded as double so protojson emits a number (int64 would be a string)"
         },
         "alert": {
           "type": "integer",
@@ -485,10 +485,10 @@
         "dst": {
           "type": "number",
           "format": "double",
-          "description": "Distance from a query point, in nautical miles. Populated only for the\n/v2/lat/lon/radius and /v2/closest endpoints."
+          "title": "distance from the query point in nautical miles. Only populated by\n/v2/lat/lon/dist and /v2/closest"
         }
       },
-      "description": "Aircraft is a snapshot of a tracked target. Fields that we cannot derive from\nSBS BaseStation data are omitted (the JSON gateway uses emit_unpopulated=false\nfor optional scalars so absent fields simply don't appear)."
+      "title": "Aircraft is a snapshot of a tracked target. Anything not derivable from SBS\nis omitted by the gateway"
     },
     "v2V2Response": {
       "type": "object",
@@ -506,25 +506,25 @@
         "now": {
           "type": "number",
           "format": "double",
-          "description": "Server clock in unix-epoch milliseconds."
+          "title": "server clock, unix-epoch milliseconds"
         },
         "total": {
           "type": "integer",
           "format": "int32",
-          "description": "Number of aircraft in `ac`."
+          "title": "number of aircraft in `ac`"
         },
         "ctime": {
           "type": "number",
           "format": "double",
-          "description": "Server clock in unix-epoch milliseconds (legacy duplicate of `now`)."
+          "title": "server clock again, kept for parity with adsb.lol"
         },
         "ptime": {
           "type": "number",
           "format": "double",
-          "description": "Processing time in milliseconds."
+          "title": "processing time in milliseconds"
         }
       },
-      "description": "V2Response mirrors the adsb.lol /v2 response envelope. Timestamps are\nemitted as doubles (not int64) so they serialize as JSON numbers rather\nthan the canonical-protojson string form, matching adsb.lol's wire format."
+      "title": "V2Response mirrors the adsb.lol /v2 response envelope. Timestamps are doubles\n(not int64) so protojson emits JSON numbers instead of the canonical strings"
     }
   }
 }

@@ -20,8 +20,8 @@ func ptrI32(v int32) *int32     { return &v }
 func ptrF64(v float64) *float64 { return &v }
 func ptrBool(b bool) *bool      { return &b }
 
-// bootstrap seeds a tracker with a fixed cohort and returns a Server backed by
-// it. csvContents is loaded as the aircraft DB (use "" for an empty DB).
+// bootstrap seeds a tracker with a fixed cohort and returns a Server backed
+// by it. csvContents is loaded as the aircraft DB ("" → empty)
 func bootstrap(t *testing.T, csvContents string) (*tracker.Tracker, *Server) {
 	t.Helper()
 
@@ -29,20 +29,20 @@ func bootstrap(t *testing.T, csvContents string) (*tracker.Tracker, *Server) {
 	clock := time.Date(2026, 5, 22, 12, 0, 0, 0, time.UTC)
 	tk.WithClock(func() time.Time { return clock })
 
-	// AAL1 over NYC.
+	// AAL1 over NYC
 	tk.Apply(sbs.Message{Type: sbs.MsgESIdentification, HexIdent: "a1b2c3", Callsign: ptrStr("AAL1")})
 	tk.Apply(sbs.Message{Type: sbs.MsgESAirbornePosition, HexIdent: "a1b2c3", Altitude: ptrI32(35000), Latitude: ptrF64(40.7128), Longitude: ptrF64(-74.0060)})
 	tk.Apply(sbs.Message{Type: sbs.MsgESAirborneVelocity, HexIdent: "a1b2c3", GroundSpeed: ptrF64(450), Track: ptrF64(90), VerticalRate: ptrI32(-256)})
 	tk.Apply(sbs.Message{Type: sbs.MsgSurveillanceID, HexIdent: "a1b2c3", Squawk: ptrStr("1234")})
-	// UAL2 over LAX, squawking 7700.
+	// UAL2 over LAX, squawking 7700
 	tk.Apply(sbs.Message{Type: sbs.MsgESIdentification, HexIdent: "def456", Callsign: ptrStr("UAL2")})
 	tk.Apply(sbs.Message{Type: sbs.MsgESAirbornePosition, HexIdent: "def456", Altitude: ptrI32(38000), Latitude: ptrF64(33.9425), Longitude: ptrF64(-118.4081)})
 	tk.Apply(sbs.Message{Type: sbs.MsgSurveillanceID, HexIdent: "def456", Squawk: ptrStr("7700"), Emergency: ptrBool(true)})
-	// US mil hex over LA.
+	// US mil hex over LA
 	tk.Apply(sbs.Message{Type: sbs.MsgESAirbornePosition, HexIdent: "ae1234", Altitude: ptrI32(20000), Latitude: ptrF64(34.0), Longitude: ptrF64(-118.0)})
-	// PIA hex.
+	// PIA hex
 	tk.Apply(sbs.Message{Type: sbs.MsgESAirbornePosition, HexIdent: "adf001", Altitude: ptrI32(10000), Latitude: ptrF64(40.0), Longitude: ptrF64(-75.0)})
-	// Callsign-only, no position — should be invisible to radius queries.
+	// callsign-only, no position — should be invisible to radius queries
 	tk.Apply(sbs.Message{Type: sbs.MsgESIdentification, HexIdent: "c01a2b", Callsign: ptrStr("KLM3")})
 
 	db := aircraftdb.Empty()

@@ -35,27 +35,27 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// AdsbService exposes the dump1090-backed adsb.lol-compatible /v2 read API.
+// AdsbService is the dump1090-backed, adsb.lol-compatible /v2 read API
 type AdsbServiceClient interface {
-	// /v2/hex/{hex_list} — one or more comma-separated 24-bit ICAO hexes.
+	// GET /v2/hex/{hex_list} — comma-separated 24-bit ICAO hex codes
 	GetByHex(ctx context.Context, in *HexRequest, opts ...grpc.CallOption) (*V2Response, error)
-	// /v2/callsign/{callsign_list} — comma-separated callsigns.
+	// GET /v2/callsign/{callsign_list} — comma-separated callsigns
 	GetByCallsign(ctx context.Context, in *CallsignRequest, opts ...grpc.CallOption) (*V2Response, error)
-	// /v2/reg/{reg_list} — comma-separated registrations.
+	// GET /v2/reg/{reg_list} — comma-separated registrations
 	GetByRegistration(ctx context.Context, in *RegistrationRequest, opts ...grpc.CallOption) (*V2Response, error)
-	// /v2/icao/{type_list} — comma-separated ICAO aircraft type designators (e.g. A320).
+	// GET /v2/icao/{type_list} (alias /v2/type/{type_list}) — ICAO type designators (e.g. A320)
 	GetByIcaoType(ctx context.Context, in *IcaoTypeRequest, opts ...grpc.CallOption) (*V2Response, error)
-	// /v2/squawk/{squawk} — single 4-digit Mode A squawk code.
+	// GET /v2/squawk/{squawk} — one 4-digit Mode A code
 	GetBySquawk(ctx context.Context, in *SquawkRequest, opts ...grpc.CallOption) (*V2Response, error)
-	// /v2/mil — all currently-tracked aircraft flagged military.
+	// GET /v2/mil — aircraft flagged military
 	GetMilitary(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*V2Response, error)
-	// /v2/ladd — Limiting Aircraft Data Displayed list.
+	// GET /v2/ladd — Limiting Aircraft Data Displayed list
 	GetLadd(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*V2Response, error)
-	// /v2/pia — Privacy ICAO Address aircraft (hex starting with ADF).
+	// GET /v2/pia — Privacy ICAO Address aircraft (hex starts with ADF)
 	GetPia(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*V2Response, error)
-	// /v2/lat/{lat}/lon/{lon}/dist/{dist} — aircraft within `dist` nautical miles of (lat, lon).
+	// GET /v2/lat/{lat}/lon/{lon}/dist/{dist} — aircraft within `dist` NM of (lat, lon)
 	GetWithinRadius(ctx context.Context, in *RadiusRequest, opts ...grpc.CallOption) (*V2Response, error)
-	// /v2/closest/{lat}/{lon}/{dist} — single closest aircraft within `dist` nautical miles.
+	// GET /v2/closest/{lat}/{lon}/{dist} — single closest aircraft within `dist` NM
 	GetClosest(ctx context.Context, in *RadiusRequest, opts ...grpc.CallOption) (*V2Response, error)
 }
 
@@ -171,27 +171,27 @@ func (c *adsbServiceClient) GetClosest(ctx context.Context, in *RadiusRequest, o
 // All implementations must embed UnimplementedAdsbServiceServer
 // for forward compatibility.
 //
-// AdsbService exposes the dump1090-backed adsb.lol-compatible /v2 read API.
+// AdsbService is the dump1090-backed, adsb.lol-compatible /v2 read API
 type AdsbServiceServer interface {
-	// /v2/hex/{hex_list} — one or more comma-separated 24-bit ICAO hexes.
+	// GET /v2/hex/{hex_list} — comma-separated 24-bit ICAO hex codes
 	GetByHex(context.Context, *HexRequest) (*V2Response, error)
-	// /v2/callsign/{callsign_list} — comma-separated callsigns.
+	// GET /v2/callsign/{callsign_list} — comma-separated callsigns
 	GetByCallsign(context.Context, *CallsignRequest) (*V2Response, error)
-	// /v2/reg/{reg_list} — comma-separated registrations.
+	// GET /v2/reg/{reg_list} — comma-separated registrations
 	GetByRegistration(context.Context, *RegistrationRequest) (*V2Response, error)
-	// /v2/icao/{type_list} — comma-separated ICAO aircraft type designators (e.g. A320).
+	// GET /v2/icao/{type_list} (alias /v2/type/{type_list}) — ICAO type designators (e.g. A320)
 	GetByIcaoType(context.Context, *IcaoTypeRequest) (*V2Response, error)
-	// /v2/squawk/{squawk} — single 4-digit Mode A squawk code.
+	// GET /v2/squawk/{squawk} — one 4-digit Mode A code
 	GetBySquawk(context.Context, *SquawkRequest) (*V2Response, error)
-	// /v2/mil — all currently-tracked aircraft flagged military.
+	// GET /v2/mil — aircraft flagged military
 	GetMilitary(context.Context, *EmptyRequest) (*V2Response, error)
-	// /v2/ladd — Limiting Aircraft Data Displayed list.
+	// GET /v2/ladd — Limiting Aircraft Data Displayed list
 	GetLadd(context.Context, *EmptyRequest) (*V2Response, error)
-	// /v2/pia — Privacy ICAO Address aircraft (hex starting with ADF).
+	// GET /v2/pia — Privacy ICAO Address aircraft (hex starts with ADF)
 	GetPia(context.Context, *EmptyRequest) (*V2Response, error)
-	// /v2/lat/{lat}/lon/{lon}/dist/{dist} — aircraft within `dist` nautical miles of (lat, lon).
+	// GET /v2/lat/{lat}/lon/{lon}/dist/{dist} — aircraft within `dist` NM of (lat, lon)
 	GetWithinRadius(context.Context, *RadiusRequest) (*V2Response, error)
-	// /v2/closest/{lat}/{lon}/{dist} — single closest aircraft within `dist` nautical miles.
+	// GET /v2/closest/{lat}/{lon}/{dist} — single closest aircraft within `dist` NM
 	GetClosest(context.Context, *RadiusRequest) (*V2Response, error)
 	mustEmbedUnimplementedAdsbServiceServer()
 }

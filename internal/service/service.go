@@ -1,11 +1,9 @@
-// Package service implements the adsb.v2.AdsbService gRPC interface backed by
-// the in-memory tracker. The HTTP shim is provided by grpc-gateway against
-// these same methods.
+// Package service implements adsbv2.AdsbServiceServer on top of the tracker.
+// The REST shim (grpc-gateway) calls the same methods, so behaviour is shared
 package service
 
 import (
 	"context"
-	"errors"
 	"sort"
 	"strings"
 	"time"
@@ -20,7 +18,6 @@ import (
 	"github.com/adsblol/dump1090-adsblol/internal/tracker"
 )
 
-// Server implements adsbv2.AdsbServiceServer.
 type Server struct {
 	adsbv2.UnimplementedAdsbServiceServer
 
@@ -30,8 +27,8 @@ type Server struct {
 	Ladd    *filters.HexSet
 }
 
-// New creates a Server with the given backing stores. mil/ladd may be nil, in
-// which case empty sets are used.
+// New constructs a Server. nil db/mil/ladd are replaced with empty sets so
+// every endpoint stays callable
 func New(t *tracker.Tracker, db *aircraftdb.DB, mil, ladd *filters.HexSet) *Server {
 	if db == nil {
 		db = aircraftdb.Empty()
@@ -44,8 +41,6 @@ func New(t *tracker.Tracker, db *aircraftdb.DB, mil, ladd *filters.HexSet) *Serv
 	}
 	return &Server{Tracker: t, DB: db, Mil: mil, Ladd: ladd}
 }
-
-// --- gRPC handlers ---
 
 func (s *Server) GetByHex(ctx context.Context, req *adsbv2.HexRequest) (*adsbv2.V2Response, error) {
 	hexes, err := splitList(req.GetHexList(), 6, "hex")
@@ -184,8 +179,6 @@ func (s *Server) GetClosest(ctx context.Context, req *adsbv2.RadiusRequest) (*ad
 	return resp, nil
 }
 
-// --- helpers ---
-
 func (s *Server) withinRadius(lat, lon, distNM float64) ([]tracker.State, []float64) {
 	all := s.Tracker.SnapshotFilter(func(st *tracker.State) bool { return st.HasPosition() })
 	out := make([]tracker.State, 0, len(all))
@@ -206,8 +199,6 @@ func (s *Server) snapshotFilter(keep func(*tracker.State) bool) []tracker.State 
 	return out
 }
 
-// respond builds a V2Response and converts states to protobuf Aircraft,
-// enriching with the aircraft DB for `r` and `t`.
 func (s *Server) respond(states []tracker.State, start time.Time) *adsbv2.V2Response {
 	now := s.Tracker.Now()
 	ms := float64(now.UnixMilli())
@@ -278,9 +269,8 @@ func (s *Server) toAircraft(st *tracker.State, now time.Time) *adsbv2.Aircraft {
 	return a
 }
 
-// splitList splits a comma-separated path parameter and validates that each
-// non-empty entry has at most maxLen characters (or any length if maxLen==0).
-// Returns codes.InvalidArgument if the list is empty.
+// splitList splits a comma-separated path parameter and bounds each entry by
+// maxLen (0 disables the check). Empty input is rejected with InvalidArgument
 func splitList(raw string, maxLen int, label string) ([]string, error) {
 	raw = strings.TrimSpace(raw)
 	if raw == "" {
@@ -317,7 +307,3 @@ func validateRadius(req *adsbv2.RadiusRequest) error {
 	}
 	return nil
 }
-
-// Errors that the gateway can surface — kept for symmetry; callers use the
-// status codes above directly.
-var _ = errors.New

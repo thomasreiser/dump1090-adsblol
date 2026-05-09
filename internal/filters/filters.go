@@ -1,6 +1,6 @@
-// Package filters implements the cohort predicates used by /v2/mil, /v2/ladd,
-// and /v2/pia. Each filter is a hex-set: lookups are O(1) against a sync-safe
-// map, plus a small set of well-known hex ranges.
+// Package filters holds the hex-set predicates used by /v2/mil, /v2/ladd and
+// /v2/pia. Exact matches are O(1); optional inclusive ranges are a linear
+// scan but kept small in practice
 package filters
 
 import (
@@ -12,8 +12,6 @@ import (
 	"strings"
 )
 
-// HexSet is a closed set of 24-bit ICAO hex codes plus optional inclusive
-// ranges.
 type HexSet struct {
 	exact  map[string]struct{}
 	ranges []hexRange
@@ -21,12 +19,10 @@ type HexSet struct {
 
 type hexRange struct{ lo, hi uint32 }
 
-// NewHexSet creates an empty set.
 func NewHexSet() *HexSet {
 	return &HexSet{exact: map[string]struct{}{}}
 }
 
-// AddHex inserts a single hex.
 func (s *HexSet) AddHex(h string) {
 	h = strings.ToLower(strings.TrimSpace(h))
 	if len(h) != 6 {
@@ -35,7 +31,7 @@ func (s *HexSet) AddHex(h string) {
 	s.exact[h] = struct{}{}
 }
 
-// AddRange inserts an inclusive [lo, hi] range of 24-bit hex values.
+// AddRange inserts an inclusive [lo, hi] range. Order is normalised
 func (s *HexSet) AddRange(lo, hi uint32) {
 	if hi < lo {
 		lo, hi = hi, lo
@@ -43,7 +39,6 @@ func (s *HexSet) AddRange(lo, hi uint32) {
 	s.ranges = append(s.ranges, hexRange{lo, hi})
 }
 
-// Contains reports whether hex is in the set.
 func (s *HexSet) Contains(hex string) bool {
 	hex = strings.ToLower(hex)
 	if _, ok := s.exact[hex]; ok {
@@ -65,8 +60,8 @@ func (s *HexSet) Contains(hex string) bool {
 	return false
 }
 
-// LoadHexFile reads `# comment`-aware text files with one hex per line.
-// A blank or unset path returns an empty set so callers can chain.
+// LoadHexFile reads a `# comment`-aware text file with one hex (or `lo-hi`
+// range) per line. Empty path returns an empty set
 func LoadHexFile(path string) (*HexSet, error) {
 	s := NewHexSet()
 	if path == "" {
@@ -87,7 +82,6 @@ func parseHexLines(s *HexSet, r io.Reader) (*HexSet, error) {
 		if line == "" || strings.HasPrefix(line, "#") {
 			continue
 		}
-		// Optional "lo-hi" range syntax.
 		if i := strings.Index(line, "-"); i > 0 {
 			lo, errLo := strconv.ParseUint(strings.TrimSpace(line[:i]), 16, 32)
 			hi, errHi := strconv.ParseUint(strings.TrimSpace(line[i+1:]), 16, 32)
@@ -104,8 +98,8 @@ func parseHexLines(s *HexSet, r io.Reader) (*HexSet, error) {
 	return s, nil
 }
 
-// IsPIA reports whether a hex falls in the FAA Privacy ICAO Address pool,
-// which is the contiguous block 0xADF000–0xADFFFF.
+// IsPIA reports whether a hex falls in the FAA Privacy ICAO Address pool
+// 0xADF000–0xADFFFF
 func IsPIA(hex string) bool {
 	hex = strings.ToLower(hex)
 	if len(hex) != 6 {
@@ -114,12 +108,10 @@ func IsPIA(hex string) bool {
 	return strings.HasPrefix(hex, "adf")
 }
 
-// DefaultMil seeds a HexSet with publicly-documented military hex ranges.
-// This is intentionally conservative — operators wanting full coverage should
-// load their own list via LoadHexFile.
+// DefaultMil seeds a HexSet with just the US military block. It's intentionally
+// minimal — operators outside North America should supply -mil-file
 func DefaultMil() *HexSet {
 	s := NewHexSet()
-	// USAF / US military: 0xAE0000–0xAFFFFF.
 	s.AddRange(0xAE0000, 0xAFFFFF)
 	return s
 }

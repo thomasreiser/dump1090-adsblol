@@ -357,9 +357,8 @@ func (x *RadiusRequest) GetDist() float64 {
 	return 0
 }
 
-// V2Response mirrors the adsb.lol /v2 response envelope. Timestamps are
-// emitted as doubles (not int64) so they serialize as JSON numbers rather
-// than the canonical-protojson string form, matching adsb.lol's wire format.
+// V2Response mirrors the adsb.lol /v2 response envelope. Timestamps are doubles
+// (not int64) so protojson emits JSON numbers instead of the canonical strings
 type V2Response struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -367,13 +366,13 @@ type V2Response struct {
 
 	Ac  []*Aircraft `protobuf:"bytes,1,rep,name=ac,proto3" json:"ac,omitempty"`
 	Msg string      `protobuf:"bytes,2,opt,name=msg,proto3" json:"msg,omitempty"`
-	// Server clock in unix-epoch milliseconds.
+	// server clock, unix-epoch milliseconds
 	Now float64 `protobuf:"fixed64,3,opt,name=now,proto3" json:"now,omitempty"`
-	// Number of aircraft in `ac`.
+	// number of aircraft in `ac`
 	Total int32 `protobuf:"varint,4,opt,name=total,proto3" json:"total,omitempty"`
-	// Server clock in unix-epoch milliseconds (legacy duplicate of `now`).
+	// server clock again, kept for parity with adsb.lol
 	Ctime float64 `protobuf:"fixed64,5,opt,name=ctime,proto3" json:"ctime,omitempty"`
-	// Processing time in milliseconds.
+	// processing time in milliseconds
 	Ptime float64 `protobuf:"fixed64,6,opt,name=ptime,proto3" json:"ptime,omitempty"`
 }
 
@@ -451,55 +450,52 @@ func (x *V2Response) GetPtime() float64 {
 	return 0
 }
 
-// Aircraft is a snapshot of a tracked target. Fields that we cannot derive from
-// SBS BaseStation data are omitted (the JSON gateway uses emit_unpopulated=false
-// for optional scalars so absent fields simply don't appear).
+// Aircraft is a snapshot of a tracked target. Anything not derivable from SBS
+// is omitted by the gateway
 type Aircraft struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// 24-bit ICAO hex, lowercase.
+	// 24-bit ICAO hex, lowercase
 	Hex string `protobuf:"bytes,1,opt,name=hex,proto3" json:"hex,omitempty"`
-	// Origin type: "adsb_icao", "adsb_icao_nt", "mlat", "tisb", ...
+	// origin type: "adsb_icao", "adsb_icao_nt", "mlat", "tisb", ...
 	Type string `protobuf:"bytes,2,opt,name=type,proto3" json:"type,omitempty"`
-	// Callsign / flight number, padded to 8 chars on the wire — kept as-received.
+	// callsign / flight number, padded to 8 chars on the wire — kept as-received
 	Flight string `protobuf:"bytes,3,opt,name=flight,proto3" json:"flight,omitempty"`
-	// Registration (looked up from optional aircraft DB).
+	// registration, from the optional aircraft DB
 	R string `protobuf:"bytes,4,opt,name=r,proto3" json:"r,omitempty"`
-	// ICAO type designator (looked up from optional aircraft DB).
+	// ICAO type designator, from the optional aircraft DB
 	T string `protobuf:"bytes,5,opt,name=t,proto3" json:"t,omitempty"`
-	// Barometric altitude in feet. When the aircraft is on the ground, this is
-	// 0 and `ground` is true (the upstream adsb.lol serializes "ground" as a
-	// string here; we keep it numeric for proto-friendliness).
+	// barometric altitude in feet. 0 when `ground` is true. adsb.lol serialises
+	// "ground" as a string here; we keep it numeric for proto-friendliness
 	AltBaro int32 `protobuf:"varint,6,opt,name=alt_baro,json=altBaro,proto3" json:"alt_baro,omitempty"`
 	Ground  bool  `protobuf:"varint,7,opt,name=ground,proto3" json:"ground,omitempty"`
-	// Ground speed in knots.
+	// ground speed in knots
 	Gs float64 `protobuf:"fixed64,8,opt,name=gs,proto3" json:"gs,omitempty"`
-	// True track over ground in degrees.
+	// true track over ground in degrees
 	Track float64 `protobuf:"fixed64,9,opt,name=track,proto3" json:"track,omitempty"`
-	// Barometric vertical rate in ft/min.
+	// barometric vertical rate, ft/min
 	BaroRate int32 `protobuf:"varint,10,opt,name=baro_rate,json=baroRate,proto3" json:"baro_rate,omitempty"`
-	// Mode A squawk code as 4 octal digits.
+	// Mode A squawk, 4 octal digits
 	Squawk string `protobuf:"bytes,11,opt,name=squawk,proto3" json:"squawk,omitempty"`
-	// Emergency state: "none", "general", "lifeguard", ...
+	// emergency state: "none", "general", "lifeguard", ...
 	Emergency string `protobuf:"bytes,12,opt,name=emergency,proto3" json:"emergency,omitempty"`
-	// Aircraft category (A0..A7, B0..B7, ...).
+	// aircraft category (A0..A7, B0..B7, ...)
 	Category string  `protobuf:"bytes,13,opt,name=category,proto3" json:"category,omitempty"`
 	Lat      float64 `protobuf:"fixed64,14,opt,name=lat,proto3" json:"lat,omitempty"`
 	Lon      float64 `protobuf:"fixed64,15,opt,name=lon,proto3" json:"lon,omitempty"`
-	// Seconds since the last position update.
+	// seconds since the last position update
 	SeenPos float64 `protobuf:"fixed64,16,opt,name=seen_pos,json=seenPos,proto3" json:"seen_pos,omitempty"`
-	// Seconds since any message from this aircraft.
+	// seconds since any message from this aircraft
 	Seen float64 `protobuf:"fixed64,17,opt,name=seen,proto3" json:"seen,omitempty"`
-	// Total SBS messages received from this hex during its lifetime in the tracker.
-	// Encoded as double for JSON compatibility with adsb.lol (it returns a number,
-	// and int64 in canonical protojson would be a string).
+	// total SBS messages received for this hex since the tracker first heard it.
+	// Encoded as double so protojson emits a number (int64 would be a string)
 	Messages float64 `protobuf:"fixed64,18,opt,name=messages,proto3" json:"messages,omitempty"`
 	Alert    int32   `protobuf:"varint,19,opt,name=alert,proto3" json:"alert,omitempty"`
 	Spi      int32   `protobuf:"varint,20,opt,name=spi,proto3" json:"spi,omitempty"`
-	// Distance from a query point, in nautical miles. Populated only for the
-	// /v2/lat/lon/radius and /v2/closest endpoints.
+	// distance from the query point in nautical miles. Only populated by
+	// /v2/lat/lon/dist and /v2/closest
 	Dst float64 `protobuf:"fixed64,21,opt,name=dst,proto3" json:"dst,omitempty"`
 }
 

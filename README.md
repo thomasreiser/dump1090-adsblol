@@ -6,8 +6,6 @@ out of the same in-process service: REST is wired up by [grpc-gateway] so the
 proto file is the single source of truth.
 
 dump1090 is consumed via its BaseStation (SBS-1) TCP feed on port `30003`.
-There's no positional-decoder or polling against `aircraft.json` — the server
-maintains its own in-memory state machine from the SBS message stream.
 
 ## What works
 
@@ -110,7 +108,8 @@ are powered exclusively by this file.
 
 ### Military / LADD hex sets (`-mil-file`, `-ladd-file`)
 
-Plain text, one hex per line or a `lo-hi` inclusive range:
+Plain text, one hex per line or a `lo-hi` inclusive range. `#` comments and
+blank lines are ignored:
 
 ```
 # US Navy specials
@@ -119,8 +118,76 @@ ae1234
 43c000-43cfff
 ```
 
-If `-mil-file` is omitted the server uses the conservative default of the
-US military block `ae0000-afffff`. `-ladd-file` defaults to empty.
+If `-mil-file` is omitted the server uses the conservative default of the US
+military block `ae0000-afffff` only. `-ladd-file` defaults to empty.
+
+#### Getting a mil hex list for your region
+
+The community projects below all maintain hex→aircraft databases where each
+entry has a "military" flag. Extracting just the mil hexes gives you a
+ready-to-use `-mil-file`:
+
+| Source | What it is | Notes |
+| --- | --- | --- |
+| [wiedehopf/tar1090-db](https://github.com/wiedehopf/tar1090-db) | Curated DB used by tar1090 / readsb | Most actively maintained; flag is in `aircraft.csv` |
+| [Mictronics/readsb-protobuf](https://github.com/Mictronics/readsb-protobuf/tree/dev/webapp/src/db) | Built-in DB shipped with dump1090-fa | Aircraft entries have a `mil` boolean |
+| [adsbexchange/tar1090-db](https://github.com/adsbexchange/tar1090-db) | ADSBx fork of the above | Includes a few extra ranges |
+
+Example: extract every mil hex from tar1090-db into a file the server can
+load:
+
+```sh
+curl -sL https://github.com/wiedehopf/tar1090-db/raw/master/aircraft.csv \
+  | awk -F'\t' '$5 ~ /Military/ {print tolower($1)}' \
+  > data/mil.txt
+
+./server -dump1090=localhost:30003 -mil-file=data/mil.txt
+```
+
+For a quick start without scripting, here are well-known military hex ranges
+you can paste into `-mil-file` directly. These are partial — verify against a
+current source if accuracy matters:
+
+```
+# United States
+ae0000-afffff
+
+# United Kingdom (RAF / Navy / Army)
+43c000-43cfff
+
+# Germany (Luftwaffe / Heeresflieger)
+3f4000-3fbfff
+
+# France (Armée de l'Air / Marine)
+3b7000-3b7fff
+3f0000-3f7fff
+
+# Italy
+33ff00-33ffff
+2a4000-2a4fff
+
+# Netherlands
+484000-484fff
+
+# Belgium
+448000-44803f
+
+# Sweden
+4a8000-4a8fff
+
+# Spain
+342000-3427ff
+
+# Canada
+c20000-c3ffff
+
+# Australia
+7c0000-7cffff
+```
+
+For attribution by country, the [ICAO 24-bit aircraft address](https://en.wikipedia.org/wiki/Aviation_transponder_interrogation_modes#ICAO_24-bit_address)
+Wikipedia article lists the per-country prefix blocks — useful when you spot
+an unusual hex and want to know where it's registered.
 
 ## Docker
 

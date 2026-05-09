@@ -1,6 +1,6 @@
 // Command server hosts the adsb.lol-compatible /v2 API backed by a local
-// dump1090 BaseStation feed. gRPC and REST share the same in-process service:
-// REST is provided by grpc-gateway in handler-server mode (no extra hop).
+// dump1090 BaseStation feed. gRPC and REST share one in-process service;
+// REST is provided by grpc-gateway in handler-server mode (no extra hop)
 package main
 
 import (
@@ -32,15 +32,15 @@ import (
 )
 
 type config struct {
-	dump1090     string
-	grpcAddr     string
-	httpAddr     string
-	aircraftDB   string
-	milFile      string
-	laddFile     string
-	maxAge       time.Duration
-	evictEvery   time.Duration
-	logLevel     string
+	dump1090   string
+	grpcAddr   string
+	httpAddr   string
+	aircraftDB string
+	milFile    string
+	laddFile   string
+	maxAge     time.Duration
+	evictEvery time.Duration
+	logLevel   string
 }
 
 func main() {
@@ -173,7 +173,7 @@ func run(cfg config, log *slog.Logger) error {
 	}()
 
 	gatewayMux := runtime.NewServeMux(
-		// adsb.lol uses snake_case in JSON; protojson defaults to lowerCamel.
+		// adsb.lol uses snake_case in JSON; protojson defaults to lowerCamel
 		runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.JSONPb{
 			MarshalOptions: protojson.MarshalOptions{
 				UseProtoNames:   true,
@@ -233,9 +233,8 @@ func loadHexSetOrDefault(path string, def func() *filters.HexSet) (*filters.HexS
 	return filters.LoadHexFile(path)
 }
 
-// debugDumpAircraft writes every tracked aircraft, with no filtering, as a
-// JSON array. Intended as a diagnostic — pick a known hex and feed it back to
-// /v2/hex to confirm the full pipeline.
+// debugDumpAircraft writes every tracked aircraft, unfiltered, as JSON. Pick
+// a hex from here and feed it to /v2/hex to sanity-check the real pipeline
 func debugDumpAircraft(w http.ResponseWriter, tk *tracker.Tracker) {
 	type row struct {
 		Hex      string   `json:"hex"`

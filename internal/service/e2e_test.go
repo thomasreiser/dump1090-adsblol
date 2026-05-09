@@ -23,9 +23,9 @@ import (
 	"github.com/adsblol/dump1090-adsblol/internal/tracker"
 )
 
-// TestE2E_GRPCAndREST stands up the real gRPC server and the grpc-gateway HTTP
-// shim against a freshly-seeded tracker, then verifies one round-trip on each
-// transport against the same endpoint to confirm the wiring works.
+// TestE2E_GRPCAndREST stands up the real gRPC server and the grpc-gateway
+// HTTP shim against a seeded tracker and round-trips one request on each
+// transport — sanity check for the full wiring, not endpoint coverage
 func TestE2E_GRPCAndREST(t *testing.T) {
 	tk := tracker.New(time.Minute)
 	clock := time.Date(2026, 5, 22, 12, 0, 0, 0, time.UTC)
@@ -61,7 +61,7 @@ func TestE2E_GRPCAndREST(t *testing.T) {
 		t.Fatalf("grpc response: %+v", gresp)
 	}
 
-	// REST (grpc-gateway, server-side handler mode)
+	// REST via grpc-gateway in handler-server mode
 	mux := runtime.NewServeMux(
 		runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.JSONPb{
 			MarshalOptions: protojson.MarshalOptions{UseProtoNames: true, EmitUnpopulated: true},

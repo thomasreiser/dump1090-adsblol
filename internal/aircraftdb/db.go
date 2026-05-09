@@ -1,14 +1,8 @@
-// Package aircraftdb loads optional hex→{registration,type} metadata used to
-// populate the `r` and `t` fields on responses, and to back the /v2/reg and
-// /v2/icao endpoints.
+// Package aircraftdb loads an optional hex→{registration,type} CSV used to
+// fill the `r`/`t` response fields and to back /v2/reg and /v2/icao
 //
-// The expected CSV layout is `hex,registration,icaotype` with no header, e.g.:
-//
-//	a1b2c3,N123AA,A320
-//	c01a2b,C-FXYZ,B738
-//
-// Lines starting with `#` and blank lines are ignored. The hex column is
-// canonicalized to lowercase; registration and type are kept as-given.
+// CSV layout (no header): hex,registration,icaotype. # comments and blank
+// lines are skipped, hex is folded to lowercase
 package aircraftdb
 
 import (
@@ -19,21 +13,18 @@ import (
 	"strings"
 )
 
-// Entry is one row.
 type Entry struct {
 	Hex          string
 	Registration string
 	IcaoType     string
 }
 
-// DB is an immutable in-memory index built at startup.
 type DB struct {
 	byHex map[string]Entry
-	byReg map[string][]Entry // upper-cased registration → entries
-	byTyp map[string][]Entry // upper-cased icao type → entries
+	byReg map[string][]Entry // key is upper-cased registration
+	byTyp map[string][]Entry // key is upper-cased ICAO type
 }
 
-// Empty returns a DB with no entries; lookups all return zero values.
 func Empty() *DB {
 	return &DB{
 		byHex: map[string]Entry{},
@@ -42,8 +33,8 @@ func Empty() *DB {
 	}
 }
 
-// LoadCSV loads a database from the file at path. An empty path returns an
-// empty DB so callers can unconditionally pass it through.
+// LoadCSV reads the file at path. An empty path returns an empty DB so callers
+// don't need to special-case the "no DB configured" path
 func LoadCSV(path string) (*DB, error) {
 	if path == "" {
 		return Empty(), nil
@@ -60,9 +51,7 @@ func parseCSV(r io.Reader) (*DB, error) {
 	db := Empty()
 	sc := bufio.NewScanner(r)
 	sc.Buffer(make([]byte, 0, 64*1024), 1<<20)
-	lineNum := 0
 	for sc.Scan() {
-		lineNum++
 		line := strings.TrimSpace(sc.Text())
 		if line == "" || strings.HasPrefix(line, "#") {
 			continue
@@ -98,17 +87,14 @@ func parseCSV(r io.Reader) (*DB, error) {
 	return db, nil
 }
 
-// Lookup returns the entry for a hex or zero value.
 func (d *DB) Lookup(hex string) Entry {
 	return d.byHex[strings.ToLower(hex)]
 }
 
-// HexesByRegistration returns all hexes with the given registration (upper-cased match).
 func (d *DB) HexesByRegistration(reg string) []string {
 	return hexes(d.byReg[strings.ToUpper(strings.TrimSpace(reg))])
 }
 
-// HexesByType returns all hexes with the given ICAO type designator.
 func (d *DB) HexesByType(typ string) []string {
 	return hexes(d.byTyp[strings.ToUpper(strings.TrimSpace(typ))])
 }

@@ -45,7 +45,7 @@ func TestApplyMergesFields(t *testing.T) {
 func TestApplyDoesNotClearKnownFields(t *testing.T) {
 	tk := New(time.Minute)
 	tk.Apply(sbs.Message{Type: sbs.MsgESAirbornePosition, HexIdent: "abc123", Altitude: ptrI32(35000)})
-	// A velocity message with no altitude should NOT zero the known altitude.
+	// a velocity-only message must not zero the previously-known altitude
 	tk.Apply(sbs.Message{Type: sbs.MsgESAirborneVelocity, HexIdent: "abc123", GroundSpeed: ptrF64(400)})
 	s, _ := tk.Get("abc123")
 	if s.Altitude == nil || *s.Altitude != 35000 {

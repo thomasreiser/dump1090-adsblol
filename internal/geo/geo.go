@@ -1,14 +1,11 @@
-// Package geo provides great-circle distance helpers used by the radius/closest
-// endpoints.
+// Package geo holds the haversine helper used by /v2/lat/lon/dist and /v2/closest
 package geo
 
 import "math"
 
-// EarthRadiusNM is the mean Earth radius in nautical miles.
+// Mean Earth radius in nautical miles
 const EarthRadiusNM = 3440.065
 
-// DistanceNM returns the great-circle distance between two lat/lon points in
-// nautical miles, using the haversine formula.
 func DistanceNM(lat1, lon1, lat2, lon2 float64) float64 {
 	const rad = math.Pi / 180
 	dLat := (lat2 - lat1) * rad

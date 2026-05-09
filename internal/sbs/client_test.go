@@ -12,8 +12,7 @@ import (
 	"time"
 )
 
-// pipeConn is a one-shot net.Conn whose Read drains a fixed string then returns
-// io.EOF; close-on-cancel still works because we wrap with a real net.Pipe.
+// pipeConnFrom returns a net.Conn whose Read drains data then yields EOF
 func pipeConnFrom(data string) net.Conn {
 	server, client := net.Pipe()
 	go func() {
@@ -43,7 +42,7 @@ func TestClient_ReadsUntilEOFThenReconnects(t *testing.T) {
 		Dial: func(ctx context.Context) (net.Conn, error) {
 			n := dialN.Add(1)
 			if n > 2 {
-				// Stop the test once we've completed two connect/read cycles.
+				// stop the loop once we've done two connect/read cycles
 				cancel()
 				return nil, context.Canceled
 			}

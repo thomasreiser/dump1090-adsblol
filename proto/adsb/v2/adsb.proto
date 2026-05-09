@@ -6,24 +6,24 @@ import "google/api/annotations.proto";
 
 option go_package = "github.com/adsblol/dump1090-adsblol/gen/adsb/v2;adsbv2";
 
-// AdsbService exposes the dump1090-backed adsb.lol-compatible /v2 read API.
+// AdsbService is the dump1090-backed, adsb.lol-compatible /v2 read API
 service AdsbService {
-  // /v2/hex/{hex_list} — one or more comma-separated 24-bit ICAO hexes.
+  // GET /v2/hex/{hex_list} — comma-separated 24-bit ICAO hex codes
   rpc GetByHex(HexRequest) returns (V2Response) {
     option (google.api.http) = { get: "/v2/hex/{hex_list}" };
   }
 
-  // /v2/callsign/{callsign_list} — comma-separated callsigns.
+  // GET /v2/callsign/{callsign_list} — comma-separated callsigns
   rpc GetByCallsign(CallsignRequest) returns (V2Response) {
     option (google.api.http) = { get: "/v2/callsign/{callsign_list}" };
   }
 
-  // /v2/reg/{reg_list} — comma-separated registrations.
+  // GET /v2/reg/{reg_list} — comma-separated registrations
   rpc GetByRegistration(RegistrationRequest) returns (V2Response) {
     option (google.api.http) = { get: "/v2/reg/{reg_list}" };
   }
 
-  // /v2/icao/{type_list} — comma-separated ICAO aircraft type designators (e.g. A320).
+  // GET /v2/icao/{type_list} (alias /v2/type/{type_list}) — ICAO type designators (e.g. A320)
   rpc GetByIcaoType(IcaoTypeRequest) returns (V2Response) {
     option (google.api.http) = {
       get: "/v2/icao/{type_list}"
@@ -31,32 +31,32 @@ service AdsbService {
     };
   }
 
-  // /v2/squawk/{squawk} — single 4-digit Mode A squawk code.
+  // GET /v2/squawk/{squawk} — one 4-digit Mode A code
   rpc GetBySquawk(SquawkRequest) returns (V2Response) {
     option (google.api.http) = { get: "/v2/squawk/{squawk}" };
   }
 
-  // /v2/mil — all currently-tracked aircraft flagged military.
+  // GET /v2/mil — aircraft flagged military
   rpc GetMilitary(EmptyRequest) returns (V2Response) {
     option (google.api.http) = { get: "/v2/mil" };
   }
 
-  // /v2/ladd — Limiting Aircraft Data Displayed list.
+  // GET /v2/ladd — Limiting Aircraft Data Displayed list
   rpc GetLadd(EmptyRequest) returns (V2Response) {
     option (google.api.http) = { get: "/v2/ladd" };
   }
 
-  // /v2/pia — Privacy ICAO Address aircraft (hex starting with ADF).
+  // GET /v2/pia — Privacy ICAO Address aircraft (hex starts with ADF)
   rpc GetPia(EmptyRequest) returns (V2Response) {
     option (google.api.http) = { get: "/v2/pia" };
   }
 
-  // /v2/lat/{lat}/lon/{lon}/dist/{dist} — aircraft within `dist` nautical miles of (lat, lon).
+  // GET /v2/lat/{lat}/lon/{lon}/dist/{dist} — aircraft within `dist` NM of (lat, lon)
   rpc GetWithinRadius(RadiusRequest) returns (V2Response) {
     option (google.api.http) = { get: "/v2/lat/{lat}/lon/{lon}/dist/{dist}" };
   }
 
-  // /v2/closest/{lat}/{lon}/{dist} — single closest aircraft within `dist` nautical miles.
+  // GET /v2/closest/{lat}/{lon}/{dist} — single closest aircraft within `dist` NM
   rpc GetClosest(RadiusRequest) returns (V2Response) {
     option (google.api.http) = { get: "/v2/closest/{lat}/{lon}/{dist}" };
   }
@@ -90,66 +90,62 @@ message RadiusRequest {
   double dist = 3;
 }
 
-// V2Response mirrors the adsb.lol /v2 response envelope. Timestamps are
-// emitted as doubles (not int64) so they serialize as JSON numbers rather
-// than the canonical-protojson string form, matching adsb.lol's wire format.
+// V2Response mirrors the adsb.lol /v2 response envelope. Timestamps are doubles
+// (not int64) so protojson emits JSON numbers instead of the canonical strings
 message V2Response {
   repeated Aircraft ac = 1;
   string msg = 2;
-  // Server clock in unix-epoch milliseconds.
+  // server clock, unix-epoch milliseconds
   double now = 3;
-  // Number of aircraft in `ac`.
+  // number of aircraft in `ac`
   int32 total = 4;
-  // Server clock in unix-epoch milliseconds (legacy duplicate of `now`).
+  // server clock again, kept for parity with adsb.lol
   double ctime = 5;
-  // Processing time in milliseconds.
+  // processing time in milliseconds
   double ptime = 6;
 }
 
-// Aircraft is a snapshot of a tracked target. Fields that we cannot derive from
-// SBS BaseStation data are omitted (the JSON gateway uses emit_unpopulated=false
-// for optional scalars so absent fields simply don't appear).
+// Aircraft is a snapshot of a tracked target. Anything not derivable from SBS
+// is omitted by the gateway
 message Aircraft {
-  // 24-bit ICAO hex, lowercase.
+  // 24-bit ICAO hex, lowercase
   string hex = 1;
-  // Origin type: "adsb_icao", "adsb_icao_nt", "mlat", "tisb", ...
+  // origin type: "adsb_icao", "adsb_icao_nt", "mlat", "tisb", ...
   string type = 2;
-  // Callsign / flight number, padded to 8 chars on the wire — kept as-received.
+  // callsign / flight number, padded to 8 chars on the wire — kept as-received
   string flight = 3;
-  // Registration (looked up from optional aircraft DB).
+  // registration, from the optional aircraft DB
   string r = 4;
-  // ICAO type designator (looked up from optional aircraft DB).
+  // ICAO type designator, from the optional aircraft DB
   string t = 5;
-  // Barometric altitude in feet. When the aircraft is on the ground, this is
-  // 0 and `ground` is true (the upstream adsb.lol serializes "ground" as a
-  // string here; we keep it numeric for proto-friendliness).
+  // barometric altitude in feet. 0 when `ground` is true. adsb.lol serialises
+  // "ground" as a string here; we keep it numeric for proto-friendliness
   int32 alt_baro = 6;
   bool ground = 7;
-  // Ground speed in knots.
+  // ground speed in knots
   double gs = 8;
-  // True track over ground in degrees.
+  // true track over ground in degrees
   double track = 9;
-  // Barometric vertical rate in ft/min.
+  // barometric vertical rate, ft/min
   int32 baro_rate = 10;
-  // Mode A squawk code as 4 octal digits.
+  // Mode A squawk, 4 octal digits
   string squawk = 11;
-  // Emergency state: "none", "general", "lifeguard", ...
+  // emergency state: "none", "general", "lifeguard", ...
   string emergency = 12;
-  // Aircraft category (A0..A7, B0..B7, ...).
+  // aircraft category (A0..A7, B0..B7, ...)
   string category = 13;
   double lat = 14;
   double lon = 15;
-  // Seconds since the last position update.
+  // seconds since the last position update
   double seen_pos = 16;
-  // Seconds since any message from this aircraft.
+  // seconds since any message from this aircraft
   double seen = 17;
-  // Total SBS messages received from this hex during its lifetime in the tracker.
-  // Encoded as double for JSON compatibility with adsb.lol (it returns a number,
-  // and int64 in canonical protojson would be a string).
+  // total SBS messages received for this hex since the tracker first heard it.
+  // Encoded as double so protojson emits a number (int64 would be a string)
   double messages = 18;
   int32 alert = 19;
   int32 spi = 20;
-  // Distance from a query point, in nautical miles. Populated only for the
-  // /v2/lat/lon/radius and /v2/closest endpoints.
+  // distance from the query point in nautical miles. Only populated by
+  // /v2/lat/lon/dist and /v2/closest
   double dst = 21;
 }

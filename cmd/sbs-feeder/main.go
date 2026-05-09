@@ -1,6 +1,6 @@
 // Command sbs-feeder is a tiny TCP server that emits canned SBS BaseStation
 // lines on connect. Useful for smoke-testing the main server without a real
-// dump1090 receiver — point the server at the address sbs-feeder prints.
+// receiver — point ./server at the address sbs-feeder prints
 package main
 
 import (
@@ -61,4 +61,3 @@ func serve(conn net.Conn, interval time.Duration) {
 		}
 	}
 }
-
